@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>5/90 Lotto Predictor</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f4f6f8;
+        margin: 0;
+        padding: 0;
+    }
+
+    h1 {
+        text-align: center;
+        background: #0a3d62;
+        color: white;
+        padding: 15px;
+        margin: 0;
+        font-size: 20px;
+    }
+
+    .container {
+        max-width: 500px;
+        margin: auto;
+        padding: 15px;
+    }
+
+    .card {
+        background: white;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+        font-size: 16px;
+        margin-bottom: 10px;
+        color: #333;
+    }
+
+    .inputs {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    input[type="number"] {
+        flex: 1;
+        min-width: 60px;
+        padding: 10px;
+        font-size: 16px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        text-align: center;
+    }
+
+    button {
+        width: 100%;
+        padding: 14px;
+        font-size: 18px;
+        border: none;
+        border-radius: 8px;
+        background: #27ae60;
+        color: white;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background: #219150;
+    }
+
+    .result {
+        background: #ecf9f1;
+        border: 1px solid #27ae60;
+        padding: 15px;
+        border-radius: 8px;
+        font-size: 18px;
+        font-weight: bold;
+        text-align: center;
+        color: #145a32;
+    }
+
+    @media (max-width: 400px) {
+        h1 {
+            font-size: 18px;
+        }
+        button {
+            font-size: 16px;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<h1>Lotto Next Draw Logic (Lotto Ai)</h1>
+
+<div class="container">
+
+    <div class="card">
+        <h2>Previous Win Numbers</h2>
+        <div class="inputs">
+            <input type="number" min="1" max="90" id="win1">
+            <input type="number" min="1" max="90" id="win2">
+            <input type="number" min="1" max="90" id="win3">
+            <input type="number" min="1" max="90" id="win4">
+            <input type="number" min="1" max="90" id="win5">
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Previous Machine Numbers</h2>
+        <div class="inputs">
+            <input type="number" min="1" max="90" id="machine1">
+            <input type="number" min="1" max="90" id="machine2">
+            <input type="number" min="1" max="90" id="machine3">
+            <input type="number" min="1" max="90" id="machine4">
+            <input type="number" min="1" max="90" id="machine5">
+        </div>
+    </div>
+
+    <button id="calculate-btn">Calculate Numbers</button>
+
+    <div class="card">
+        <h2>Try These Numbers</h2>
+        <div class="result" id="result">---</div>
+    </div>
+
+</div>
+
+<script>
+    function normalize(num) {
+        num = Math.abs(num);
+        num = num % 90;
+        return num === 0 ? 90 : num;
+    }
+
+    document.getElementById("calculate-btn").addEventListener("click", function () {
+
+        const win = [1,2,3,4,5].map(i =>
+            parseInt(document.getElementById(`win${i}`).value)
+        );
+
+        const machine = [1,2,3,4,5].map(i =>
+            parseInt(document.getElementById(`machine${i}`).value)
+        );
+
+        if ([...win, ...machine].some(n => isNaN(n))) {
+            document.getElementById("result").innerText =
+                "Enter all numbers correctly";
+            return;
+        }
+
+        const winSum = win.reduce((a,b) => a + b, 0);
+        const machineSum = machine.reduce((a,b) => a + b, 0);
+
+        const winMod90 = normalize(winSum);
+        const macMod90 = normalize(machineSum);
+
+        let firstTwoSum = win[0] + win[1];
+        if (firstTwoSum > 90) {
+            const rest = win.slice(2).sort((a,b) => a - b);
+            for (let n of rest) {
+                firstTwoSum -= n;
+                if (firstTwoSum <= 90) break;
+            }
+        }
+
+        const midMachine = machine[Math.floor(machine.length / 2)];
+        const midDouble = normalize(midMachine * 2);
+
+        const results = [
+            normalize((90 - firstTwoSum) - 10),
+            winMod90,
+            normalize(macMod90 + 1),
+            normalize((90 - firstTwoSum) - 8),
+            normalize(midDouble + 18),
+            normalize(midDouble - 9)
+        ];
+
+        document.getElementById("result").innerText =
+            results.join(" - ");
+    });
+</script>
+
+</body>
+</html>
